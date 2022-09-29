@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "akahu2firefly"
+version = "0.1.0"
+description = "Take data from akahu.nz api and insert into a firefly project"
+authors = ["oranges <email@oranges.net.nz>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.27.1"
+python_dateutil = ">2.5.3"
+setuptools = ">21.0.0"
+urllib3 = "1.25.3"
+python-dotenv = "^0.21.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

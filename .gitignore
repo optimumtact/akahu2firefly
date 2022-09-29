@@ -1,0 +1,5 @@
+.env
+*.log
+*.txt
+*.sqlite3
+poetry.lock
