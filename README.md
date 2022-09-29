@@ -19,4 +19,4 @@ That data will also end up in the local sqlite file so take the appropriate meas
 - cli interface/script that lets you choose when to start importing from, if to update in place or only get new
 - The records intermediate table is useful to have when debugging or investigating issues, but is not actually necessary for production usecases and is actually dangerous, as it contains financial data, make it so it is only populated and filled out when debug env vars are set
 - Make the session table cleared at the end of the script runtime as well for the same reason, we only ever want the mapping information stored
-'''
+- Add a validation mode that compares all existing mapped transactions to see if they're in firefly and removes them from the mapping table if not (allowing you to recreate them potentially)
