@@ -3,3 +3,5 @@
 *.txt
 *.sqlite3
 poetry.lock
+*__pycache__*
+*.pyc
