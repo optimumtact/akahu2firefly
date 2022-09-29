@@ -67,7 +67,7 @@ class akahu2firefly():
 
             "X-Akahu-Id": os.getenv('AKAHU_APP_CLIENTID'),
 
-            "Authorization": "Bearer user_token_"+os.getenv('AKAHU_TOKEN')
+            "Authorization": "Bearer "+os.getenv('AKAHU_TOKEN')
 
         }
         self.dbcon = sqlite3.connect('idmappings.sqlite3')
