@@ -25,13 +25,7 @@ from firefly_iii_client.model.transaction_type_property import  TransactionTypeP
 from firefly_iii_client.model.transaction_read import TransactionRead
 from firefly_iii_client.model.transaction_single import TransactionSingle
 
-'''
-TODO items
-1) add updating of transactions that already exist based on conditional flag
-2) cli interface/script that lets you choose when to start importing from, if to update in place or only get new
-3) cli interface reading env vars for PAT, and AKAHU auth headers + host urls
-3) rerun script to test and make sure transaction logic is better
-'''
+
 class akahu2firefly():
 
     def main(self):
