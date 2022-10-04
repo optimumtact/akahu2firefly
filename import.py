@@ -6,6 +6,7 @@ from dateutil import parser
 import datetime
 import os
 from dotenv import load_dotenv
+from db_manager import db_manager
 
 import firefly_iii_client
 
@@ -64,62 +65,8 @@ class akahu2firefly():
             "Authorization": "Bearer "+os.getenv('AKAHU_TOKEN')
 
         }
-        self.dbcon = sqlite3.connect('idmappings.sqlite3')
-        self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu2firefly_account
-                (
-                    akahu_account_id TEXT UNIQUE NOT NULL, firefly_account_id TEXT NOT NULL
-                )
-            '''
-        )
-        self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu2firefly_transaction 
-                (
-                    akahu_trans_id TEXT UNIQUE NOT NULL,
-                    firefly_trans_id TEXT NOT NULL,
-                    updated_at INT
-                )
-            '''
-        )
-        self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu_transaction_record 
-                (
-                    transaction_id TEXT UNIQUE NOT NULL,
-                    account TEXT NOT NULL,
-                    user TEXT NOT NULL,
-                    date TEXT NOT NULL,
-                    balance REAL NOT NULL,
-                    type TEXT NOT NULL,
-                    body TEXT NOT NULL,
-                    amount REAL NOT NULL,
-                    created_at INT NOT NULL,
-                    updated_at INT NOT NULL,
-                    description TEXT NOT NULL
-                )
-            '''
-        )
-        self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu_transaction_session 
-                (
-                    transaction_id TEXT UNIQUE NOT NULL,
-                    account TEXT NOT NULL,
-                    user TEXT NOT NULL,
-                    date TEXT NOT NULL,
-                    balance REAL NOT NULL,
-                    type TEXT NOT NULL,
-                    body TEXT NOT NULL,
-                    amount REAL NOT NULL,
-                    created_at INT NOT NULL,
-                    updated_at INT NOT NULL,
-                    description TEXT NOT NULL
-                )
-            '''
-        )
-        self.dbcon.commit()
+        self.dbcon = db_manager('idmappings.sqlite3')
+   
 
         # Load mapping of akahu account ids to firefly account ids from local sqlite mappings db
         self.create_mapping_dicts_from_db() 
@@ -132,7 +79,7 @@ class akahu2firefly():
 
             print("Creating missing accounts")
             # Create any accounts missing in firefly
-            self.create_missing_accounts_in_firefly() 
+            #self.create_missing_accounts_in_firefly() 
             
             # Recreate the mapping dicts with updated data as needed
             self.create_mapping_dicts_from_db()
@@ -205,7 +152,7 @@ class akahu2firefly():
 
         while cursor:
             if cursor == True:
-                #url = "https://api.akahu.io/v1/transactions?start=2021-12-31"
+                #url = "https://api.akahu.io/v1/transactions?start=2022-09-25"
                 url = "https://api.akahu.io/v1/transactions"
             else:
                 url = "https://api.akahu.io/v1/transactions?cursor="+cursor
