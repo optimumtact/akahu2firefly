@@ -15,6 +15,9 @@ python-dotenv = "^0.21.0"
 
 [tool.poetry.dev-dependencies]
 
+[tool.poetry.group.development.dependencies]
+black = "^23.3.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

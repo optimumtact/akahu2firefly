@@ -1,36 +1,33 @@
-
-
 import sqlite3
 
 
-class db_manager():
-    
+class db_manager:
     def __init__(self, filename) -> None:
         self.dbcon = sqlite3.connect(filename)
         self.setup_tables()
 
     def setup_tables(self):
         self.dbcon.execute(
-            '''
+            """
             CREATE TABLE IF NOT EXISTS akahu2firefly_account
                 (
                     akahu_account_id TEXT UNIQUE NOT NULL, firefly_account_id TEXT NOT NULL
                 )
-            '''
+            """
         )
         self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu2firefly_transaction 
+            """
+            CREATE TABLE IF NOT EXISTS akahu2firefly_transaction
                 (
                     akahu_trans_id TEXT UNIQUE NOT NULL,
                     firefly_trans_id TEXT NOT NULL,
                     updated_at INT
                 )
-            '''
+            """
         )
         self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu_transaction_record 
+            """
+            CREATE TABLE IF NOT EXISTS akahu_transaction_record
                 (
                     transaction_id TEXT UNIQUE NOT NULL,
                     account TEXT NOT NULL,
@@ -44,11 +41,11 @@ class db_manager():
                     updated_at INT NOT NULL,
                     description TEXT NOT NULL
                 )
-            '''
+            """
         )
         self.dbcon.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS akahu_transaction_session 
+            """
+            CREATE TABLE IF NOT EXISTS akahu_transaction_session
                 (
                     transaction_id TEXT UNIQUE NOT NULL,
                     account TEXT NOT NULL,
@@ -62,7 +59,7 @@ class db_manager():
                     updated_at INT NOT NULL,
                     description TEXT NOT NULL
                 )
-            '''
+            """
         )
         self.dbcon.commit()
 
@@ -71,3 +68,17 @@ class db_manager():
 
     def commit(self):
         return self.dbcon.commit()
+
+    def get_firefly_account_for_akahu_account(self, akahu_account_id):
+        mapping = self.dbcon.execute(
+            """
+                SELECT akahu_account_id, firefly_account_id
+                  FROM akahu2firefly_account
+                 WHERE akahu_account_id = ?
+            """,
+            [akahu_account_id],
+        ).fetchone()
+        if mapping:
+            return mapping[1]
+        else:
+            return None
