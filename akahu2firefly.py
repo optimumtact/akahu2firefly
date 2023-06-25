@@ -1,7 +1,6 @@
 from json import loads, dumps
 import re
 import requests
-import sqlite3
 from dateutil import parser
 from datetime import datetime, timezone
 import os
@@ -13,7 +12,6 @@ import firefly_iii_client
 from firefly_iii_client.api import accounts_api
 from firefly_iii_client.api import transactions_api
 from firefly_iii_client.model.account_array import AccountArray
-from firefly_iii_client.model.account import Account
 from firefly_iii_client.model.account_read import AccountRead
 from firefly_iii_client.model.account_single import AccountSingle
 from firefly_iii_client.model.account_store import AccountStore
@@ -26,7 +24,6 @@ from firefly_iii_client.model.transaction_store import TransactionStore
 from firefly_iii_client.model.transaction_split_store import TransactionSplitStore
 from firefly_iii_client.model.transaction_type_property import TransactionTypeProperty
 from firefly_iii_client.model.transaction_read import TransactionRead
-from firefly_iii_client.model.transaction_single import TransactionSingle
 
 
 class akahu2firefly:
@@ -129,7 +126,7 @@ class akahu2firefly:
                 """
                 SELECT balance, amount, created_at
                   FROM akahu_transaction_record
-                  WHERE account = ? 
+                  WHERE account = ?
                ORDER BY created_at ASC
                   LIMIT 1
                 """,
@@ -308,7 +305,7 @@ class akahu2firefly:
         akahu_type = akahu_transaction["type"]
         self.dbcon.execute(
             """INSERT INTO akahu_transaction_session
-                    VALUES 
+                    VALUES
                     (
                         ?,
                         ?,
@@ -355,7 +352,7 @@ class akahu2firefly:
         akahu_type = akahu_transaction["type"]
         self.dbcon.execute(
             """INSERT INTO akahu_transaction_record
-                    VALUES 
+                    VALUES
                     (
                         ?,
                         ?,
