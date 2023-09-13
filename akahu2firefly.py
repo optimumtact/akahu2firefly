@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
 from db_manager import db_manager
+from pprint import pprint
 
 import firefly_iii_client
 
@@ -86,7 +87,7 @@ class akahu2firefly:
 
             print("Creating missing accounts")
             # Create any accounts missing in firefly
-            # self.create_missing_accounts_in_firefly()
+            self.create_missing_accounts_in_firefly()
 
             # Recreate the mapping dicts with updated data as needed
             self.create_mapping_dicts_from_db()
@@ -168,12 +169,12 @@ class akahu2firefly:
         self.dbcon.commit()
 
         while cursor:
-            if cursor:
-                # url = "https://api.akahu.io/v1/transactions?start=2022-09-25"
-                # TODO make this update automtaically
-                url = "https://api.akahu.io/v1/transactions?start=2023-05-01"
-            else:
+            # cursor should be a string
+            if cursor and not isinstance(cursor, bool):
                 url = "https://api.akahu.io/v1/transactions?cursor=" + cursor
+            else:
+                # url = "https://api.akahu.io/v1/transactions?start=2022-09-25"
+                url = "https://api.akahu.io/v1/transactions?start=2023-09-01"
             response = requests.request("GET", url, headers=self.akahu_headers)
 
             # Convert json response to dict
@@ -303,6 +304,19 @@ class akahu2firefly:
         akahu_date = akahu_transaction["date"]
         akahu_body = dumps(akahu_transaction)
         akahu_type = akahu_transaction["type"]
+        result = self.dbcon.execute(
+            """
+            SELECT *
+              FROM akahu_transaction_session
+              WHERE transaction_id = ?
+            """,
+            [akahu_transid],
+        ).fetchone()
+        if result:
+            print("Duplicate session found")
+            pprint(result)
+            pprint(akahu_transaction)
+            return
         self.dbcon.execute(
             """INSERT INTO akahu_transaction_session
                     VALUES
@@ -461,14 +475,11 @@ class akahu2firefly:
     def get_category_and_tags(self, akahu_transaction):
         category = None
         tags = []
-        if (
-            "category" in akahu_transaction
-            and "components" in akahu_transaction["category"]
-        ):
-            for component in akahu_transaction["category"]["components"]:
-                tags.append(component["name"])
-                if component["type"] == "nzfcc:pfm":
-                    category = component["name"]
+        if "category" in akahu_transaction:
+            category = akahu_transaction["category"]["name"]
+            if "groups" in akahu_transaction["category"]:
+                for groupname in akahu_transaction["category"]["groups"]:
+                    tags.append(akahu_transaction["category"]["groups"][groupname]["name"])
         return category, tags
 
     def create_withdrawal(self, akahu_transaction):
@@ -547,7 +558,6 @@ class akahu2firefly:
                 ),
             ],
         )  # TransactionStore | JSON array or key=value pairs with the necessary transaction information. See the model for the exact specifications.
-
         try:
             # Store a new transaction
             api_response = transaction_api_client.store_transaction(transaction_store)
