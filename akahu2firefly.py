@@ -2,7 +2,7 @@ from json import loads, dumps
 import re
 import requests
 from dateutil import parser
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 from dotenv import load_dotenv
 from db_manager import db_manager
@@ -168,18 +168,28 @@ class akahu2firefly:
         self.dbcon.execute("""DELETE FROM akahu_transaction_session""")
         self.dbcon.commit()
 
+        # Calculate the most recent transaction record date.
+        most_recent_transaction = self.dbcon.get_most_recent_mapping_transaction()
+        if most_recent_transaction:
+            # Start from a relatively decent point back from this point to catch any missed stuff
+            target_date = most_recent_transaction.updated_at - timedelta(days=14)
+            start = target_date.strftime("%Y-%m-%d")
+        else:
+            # Start from the users default
+            start = os.getenv("FIRST_START_DATE")
+
         while cursor:
             # cursor should be a string
             if cursor and not isinstance(cursor, bool):
                 url = "https://api.akahu.io/v1/transactions?cursor=" + cursor
             else:
                 # url = "https://api.akahu.io/v1/transactions?start=2022-09-25"
-                url = "https://api.akahu.io/v1/transactions?start=2023-09-01"
+                url = f"https://api.akahu.io/v1/transactions?start={start}"
+            print(url)
             response = requests.request("GET", url, headers=self.akahu_headers)
 
             # Convert json response to dict
             transactions = loads(response.text)
-
             cursor = transactions["cursor"]["next"]
             for transaction in transactions["items"]:
                 self.store_transaction_in_session(transaction)
@@ -287,7 +297,7 @@ class akahu2firefly:
         elif akahu_transaction["amount"] > 0:
             self.create_deposit(akahu_transaction)
         else:
-            print("Uknown transaction type")
+            print("Unknown transaction type")
             print(akahu_transaction)
 
     def store_transaction_in_session(self, akahu_transaction):

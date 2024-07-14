@@ -1,5 +1,5 @@
 import sqlite3
-
+from models import akahu2firefly_transaction
 
 class db_manager:
     def __init__(self, filename) -> None:
@@ -68,6 +68,15 @@ class db_manager:
 
     def commit(self):
         return self.dbcon.commit()
+
+    def get_most_recent_mapping_transaction(self) -> akahu2firefly_transaction:
+        cursor = self.dbcon.execute("""SELECT * FROM akahu2firefly_transaction ORDER BY updated_at DESC LIMIT 1""")
+        result = cursor.fetchone()
+        if result:
+            result = akahu2firefly_transaction(*result)
+        else:
+            result = None
+        return result
 
     def get_firefly_account_for_akahu_account(self, akahu_account_id):
         mapping = self.dbcon.execute(
