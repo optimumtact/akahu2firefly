@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from json import loads, dumps
 import re
 import requests
@@ -172,7 +173,7 @@ class akahu2firefly:
         most_recent_transaction = self.dbcon.get_most_recent_mapping_transaction()
         if most_recent_transaction:
             # Start from a relatively decent point back from this point to catch any missed stuff
-            target_date = most_recent_transaction.updated_at - timedelta(days=14)
+            target_date = most_recent_transaction.updated_at - timedelta(days=2)
             start = target_date.strftime("%Y-%m-%d")
         else:
             # Start from the users default
